@@ -3,14 +3,6 @@
 
 import SwiftUI
 
-fileprivate func calculateProgress(point: CGPoint?, points: [CGPoint]) -> Float {
-    if let point, let idx = points.firstIndex(of: point) {
-        return Float(idx) / Float(points.count)
-    } else {
-        return 0
-    }
-}
-
 public struct PathSlider<Indicator>: View where Indicator : View {
     let track: PathTrack
 
@@ -25,47 +17,39 @@ public struct PathSlider<Indicator>: View where Indicator : View {
     }
 
     public var body: some View {
-        ZStack(alignment: .topLeading) {
+        ZStack {
             track
 
             indicator()
-                .frame(alignment: .center)
-                .offset(x: dragPoint.x, y: dragPoint.y)
-
+                .position(x: dragPoint.x, y: dragPoint.y)
 
 //            debugPathPoints()
-
-        }.gesture(
-            DragGesture(minimumDistance: 0).onChanged { state in
+        }
+        .coordinateSpace(name: "path-slider")
+        .gesture(
+            DragGesture(minimumDistance: 0, coordinateSpace: .named("path-slider")).onChanged { state in
                 withAnimation {
-                    dragPoint = track.closest(from: state.location)!
+                    dragPoint = track.closest(from: state.location) ?? .zero
                 }
             }
-        ).onAppear {
+        )
+        .onAppear {
             self.dragPoint = track.closest(from: $dragPoint.wrappedValue) ?? $dragPoint.wrappedValue
         }
-
     }
 
     #if DEBUG
     @ViewBuilder
     private func debugPathPoints() -> some View {
-        ForEach(track.points) { point in
+        ForEach(track.points, id: \.self) { point in
             Circle()
                 .stroke(Color.red, lineWidth: 1)
                 .frame(width: 4, height: 4, alignment: .center)
-                .offset(.init(width: point.x - 2, height: point.y - 2))
+                .position(x: point.x, y: point.y)
         }
     }
     #endif
 }
-
-#if DEBUG
-extension CGPoint: @retroactive Identifiable {
-    public var id: String { "\(self)" }
-}
-#endif
-
 
 struct PathSlider_Previews: PreviewProvider {
 
