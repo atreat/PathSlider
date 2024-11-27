@@ -4,7 +4,7 @@
 
 import SwiftUI
 
-public struct PathTrack: View {
+public struct PathTrack {
 
     public var path: Path
 
@@ -33,10 +33,5 @@ public struct PathTrack: View {
 
     public func closest(from point: CGPoint) -> CGPoint? {
         points.closest(from: point)
-    }
-
-    public var body: some View {
-        path
-            .stroke(Color.primary.opacity(0.2), lineWidth: 2)
     }
 }
