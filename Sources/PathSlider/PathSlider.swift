@@ -3,10 +3,9 @@
 
 import SwiftUI
 
-public struct PathSlider<Indicator, Track, V: Strideable>: View where Indicator : View, Track : View {
+public struct PathSlider<Indicator, Track, V: Strideable>: View where Indicator : View, Track : View, V.Stride : BinaryFloatingPoint {
     private let model: PathTrack
-    @GestureState private var dragAmount: CGPoint = .zero
-    
+
     // Internal state to hold default values when bindings aren't provided
     @State private var internalValue: V
     @State private var internalPathPoint: CGPoint = .zero
@@ -20,7 +19,7 @@ public struct PathSlider<Indicator, Track, V: Strideable>: View where Indicator 
     let track: (Path) -> Track
 
     // Main initializer that handles all cases
-    private init(
+    public init(
         path: Path,
         value: Binding<V>?,
         in range: ClosedRange<V>,
@@ -30,12 +29,12 @@ public struct PathSlider<Indicator, Track, V: Strideable>: View where Indicator 
     ) {
         self.model = PathTrack(path: path)
         self.range = range
-        self._internalValue = State(initialValue: range.lowerBound)
+        self._internalValue = State(initialValue: value?.wrappedValue ?? range.lowerBound)
         self._internalPathPoint = State(initialValue: .zero)
-        
+
         // Create bindings that use internal state if external binding isn't provided
-        self.valueBinding = Self.makeBinding(external: value, internalState: _internalValue)
-        self.pathPointBinding = Self.makeBinding(external: pathPoint, internalState: _internalPathPoint)
+        self.valueBinding = value ?? _internalValue.projectedValue
+        self.pathPointBinding = pathPoint ?? _internalPathPoint.projectedValue
 
         self.indicator = indicator
         self.track = track
@@ -48,7 +47,7 @@ public struct PathSlider<Indicator, Track, V: Strideable>: View where Indicator 
         in range: ClosedRange<V>,
         indicator: @escaping () -> Indicator,
         track: @escaping (Path) -> Track
-    ) where V : BinaryFloatingPoint {
+    ) {
         self.init(
             path: path,
             value: value,
@@ -56,17 +55,6 @@ public struct PathSlider<Indicator, Track, V: Strideable>: View where Indicator 
             pathPoint: nil,
             indicator: indicator,
             track: track
-        )
-    }
-
-    // static helper to create binding without capturing self in initializer
-    private static func makeBinding<T>(
-        external: Binding<T>?,
-        internalState: State<T>
-    ) -> Binding<T> {
-        external ?? Binding(
-            get: { internalState.wrappedValue },
-            set: { internalState.wrappedValue = $0 }
         )
     }
 }
@@ -87,26 +75,46 @@ extension PathSlider {
         .coordinateSpace(name: "path-slider")
         .gesture(
             DragGesture(minimumDistance: 0, coordinateSpace: .named("path-slider"))
-                .updating($dragAmount) { value, state, transaction in
-                    state = value.location
-                }
                 .onChanged { value in
-                    withAnimation {
-                        // Update the position of the indicator smoothly
-                        pathPointBinding.wrappedValue = model.closest(from: value.location) ?? value.location
+                    let loc = value.location
+                    if let closest = model.closest(from: loc) {
+                        withAnimation(.default) {
+                            // Update the position of the indicator smoothly
+                            valueBinding.wrappedValue = range.item(for: model.percentage(for: closest))
+                            pathPointBinding.wrappedValue = closest
+                        }
+                    } else {
+                        // TODO: when is there not a closest item?
                     }
                 }
                 .onEnded { value in
-                    withAnimation {
-                        // Update the position of the indicator smoothly
-                        pathPointBinding.wrappedValue = model.closest(from: value.location) ?? value.location
+                    let loc = value.location
+                    if let closest = model.closest(from: loc) {
+                        withAnimation(.default) {
+                            // Update the position of the indicator smoothly
+                            valueBinding.wrappedValue = range.item(for: model.percentage(for: closest))
+                            pathPointBinding.wrappedValue = closest
+                        }
+                    } else {
+                        // TODO: when is there not a closest item?
                     }
                 }
         )
         .onAppear {
-            let point = pathPointBinding.wrappedValue ?? .zero
-
-            self.pathPointBinding.wrappedValue = model.closest(from: point) ?? point
+            // TODO: Decide if `value` or `pathPoint` should take precendence for initial position
+            let point = pathPointBinding.wrappedValue
+            if let closest = model.closest(from: point) {
+                self.pathPointBinding.wrappedValue = closest
+                valueBinding.wrappedValue = range.item(for:  model.percentage(for: closest))
+            }
+        }
+        .onChange(of: valueBinding.wrappedValue) { newValue in
+            // When value changes externally, need to update the pathPoint to match
+            if let bfp = newValue as? any BinaryFloatingPoint {
+                self.pathPointBinding.wrappedValue = model.point(for: Float(bfp))
+            } else {
+                // TODO: what if value is not BinaryFloatingPoint?
+            }
         }
     }
 }
@@ -144,11 +152,11 @@ extension PathSlider {
 }
 #endif
 
-struct PathSlider_Previews: PreviewProvider {
-
-    @State static var point: CGPoint = .zero
-    static var previews: some View {
-        let path = Path(ellipseIn: CGRect(origin: .zero, size: .init(width: 300, height: 160)))
+//struct PathSlider_Previews: PreviewProvider {
+//
+//    @State static var point: CGPoint = .zero
+//    static var previews: some View {
+//        let path = Path(ellipseIn: CGRect(origin: .zero, size: .init(width: 300, height: 160)))
 //        PathSlider(path: path, pathPoint: $point) {
 //            // indicator
 //            PathPoint()
@@ -156,6 +164,5 @@ struct PathSlider_Previews: PreviewProvider {
 //        } track: { path in
 //            path.stroke(Color.black.opacity(0.5), lineWidth: 2)
 //        }
-
-    }
-}
+//    }
+//}
