@@ -13,6 +13,7 @@ struct ContentView: View {
             List {
                 NavigationLink("Ellipse") { EllipseView() }
                 NavigationLink("Triangle") { TriangleView() }
+                NavigationLink("Shape Modifier") { ShapeView() }
             }
         }
     }
