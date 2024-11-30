@@ -12,6 +12,7 @@ struct ContentView: View {
         NavigationStack {
             List {
                 NavigationLink("Ellipse") { EllipseView() }
+                NavigationLink("Triangle") { TriangleView() }
             }
         }
     }

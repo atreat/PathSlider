@@ -11,7 +11,6 @@ import PathSlider
 struct EllipseView: View {
 
     @State var dragPoint: CGPoint = .zero
-
     @State var value: Float = 0.5
 
 
