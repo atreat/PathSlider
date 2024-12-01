@@ -19,7 +19,7 @@ public struct PathSlider<Indicator, Track, V: Strideable>: View where Indicator 
     let track: (Path) -> Track
 
     // Main initializer that handles all cases
-    private init(
+    init(
         path: Path,
         value: Binding<V>?,
         range: ClosedRange<V>?,
@@ -37,58 +37,6 @@ public struct PathSlider<Indicator, Track, V: Strideable>: View where Indicator 
         // View providers
         self.indicator = indicator
         self.track = track
-    }
-
-    // Public initializers can now be simplified
-    public init(
-        path: Path,
-        value: Binding<V>,
-        in range: ClosedRange<V>,
-        indicator: @escaping () -> Indicator,
-        @ViewBuilder track: @escaping (Path) -> Track
-    ) {
-        self.init(
-            path: path,
-            value: value,
-            range: range,
-            pathPoint: nil,
-            indicator: indicator,
-            track: track
-        )
-    }
-
-    public init(
-        path: Path,
-        pathPoint: Binding<CGPoint>,
-        indicator: @escaping () -> Indicator,
-        @ViewBuilder track: @escaping (Path) -> Track
-    ) {
-        self.init(
-            path: path,
-            value: nil,
-            range: nil,
-            pathPoint: pathPoint,
-            indicator: indicator,
-            track: track
-        )
-    }
-
-    public init(
-        path: Path,
-        value: Binding<V>,
-        in range: ClosedRange<V>,
-        pathPoint: Binding<CGPoint>,
-        indicator: @escaping () -> Indicator,
-        @ViewBuilder track: @escaping (Path) -> Track
-    ) {
-        self.init(
-            path: path,
-            value: value,
-            range: range,
-            pathPoint: pathPoint,
-            indicator: indicator,
-            track: track
-        )
     }
 }
 
@@ -154,24 +102,6 @@ extension PathSlider {
         } else {
             // TODO: what if value is not BinaryFloatingPoint?
         }
-    }
-}
-
-extension PathSlider where V == Double {
-    public init(
-        path: Path,
-        pathPoint: Binding<CGPoint>,
-        indicator: @escaping () -> Indicator,
-        @ViewBuilder track: @escaping (Path) -> Track
-    ) {
-        self.init(
-            path: path,
-            value: nil,
-            range: nil,
-            pathPoint: pathPoint,
-            indicator: indicator,
-            track: track
-        )
     }
 }
 

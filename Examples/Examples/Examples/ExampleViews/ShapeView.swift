@@ -13,7 +13,7 @@ struct ShapeView: View {
     var body: some View {
 
         Circle()
-            .slider(value: $value, range: 0...1, pathPoint: $dragPoint) {
+            .slider(value: $value, in: 0...1, pathPoint: $dragPoint) {
                 Circle()
                     .stroke(.blue, lineWidth: 2.0)
                     .fill(.blue.gradient)
@@ -28,7 +28,7 @@ struct ShapeView: View {
 
         RoundedRectangle(cornerRadius: 15)
             .trim(from: 0, to: 0.5)
-            .slider(value: $value, range: 0...1) {
+            .slider(value: $value, in: 0...1) {
                 Circle()
                     .stroke(.blue, lineWidth: 2.0)
                     .fill(.blue.gradient)
