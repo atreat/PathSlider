@@ -64,12 +64,12 @@ extension PathSlider {
                 }
         )
         .onAppear {
-            // TODO: Decide if `value` or `pathPoint` should take precendence for initial position
-            update(with: pathPointBinding?.wrappedValue ?? .zero)
-        }
-        .onChange(of: internalPathPoint) { newValue in
-            pathPointBinding?.wrappedValue = newValue
-            valueBinding?.wrappedValue = range?.item(for: model.percentage(for: newValue)) ?? 0 as! V
+            // `value` binding initial value will take precendence over pathPoint
+            if let value = valueBinding?.wrappedValue {
+                update(with: value)
+            } else {
+                update(with: pathPointBinding?.wrappedValue ?? .zero)
+            }
         }
         .onChange(of: valueBinding?.wrappedValue) { newValue in
             // When value changes externally, need to update the pathPoint to match
@@ -88,6 +88,8 @@ extension PathSlider {
         if let closest = model.closest(from: point) {
             withAnimation(.default) {
                 internalPathPoint = closest
+                pathPointBinding?.wrappedValue = closest
+                valueBinding?.wrappedValue = range?.item(for: model.percentage(for: closest)) ?? 0 as! V
             }
         } else {
             // TODO: what if no closest point?
@@ -98,6 +100,8 @@ extension PathSlider {
         if let bfp = newValue as? any BinaryFloatingPoint {
             withAnimation(.default) {
                 internalPathPoint = model.point(for: Float(bfp))
+                pathPointBinding?.wrappedValue = internalPathPoint
+                valueBinding?.wrappedValue = bfp as! V
             }
         } else {
             // TODO: what if value is not BinaryFloatingPoint?
