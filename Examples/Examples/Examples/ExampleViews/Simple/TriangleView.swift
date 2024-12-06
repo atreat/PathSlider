@@ -15,7 +15,6 @@ struct TriangleView: View {
         p.move(to: .init(x: 200, y: 50))
         p.addLine(to: .init(x: 350, y: 250))
         p.addLine(to: .init(x: 50, y: 250))
-        p.addLine(to: .init(x: 200, y: 50))
         p.closeSubpath()
     }
 

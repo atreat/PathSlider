@@ -21,10 +21,11 @@ extension Path {
             switch element {
             case .line(to: _),
                     .quadCurve(to: _, control: _),
-                    .curve(to: _, control1: _, control2: _):
+                    .curve(to: _, control1: _, control2: _),
+                    .closeSubpath:
                 c += 1
             default:
-                c += 0
+                break
             }
         }
         return c
@@ -33,7 +34,7 @@ extension Path {
     func generateLookup(capacity: Int = 100) -> [CGPoint] {
         let count = strokeSegmentCount
         guard count > 0 else { return [] }
-        let capacityPerPiece = capacity / count
+        let capacityPerSegment = capacity / count
 
         var lookupTable = [CGPoint]()
         var previousPoint: CGPoint?
@@ -45,8 +46,8 @@ extension Path {
             case .line(to: let point):
                 guard let prevPoint = previousPoint else { break }
 
-                for i in 0...capacityPerPiece {
-                    let t = CGFloat(i) / CGFloat(capacityPerPiece)
+                for i in 0...capacityPerSegment {
+                    let t = CGFloat(i) / CGFloat(capacityPerSegment)
                     let point = calculateLinear(t: t, p1: prevPoint, p2: point)
                     lookupTable.append(point)
                 }
@@ -54,8 +55,8 @@ extension Path {
             case .quadCurve(to: let point, control: let control):
                 guard let prevPoint = previousPoint else { break }
 
-                for i in 0...capacityPerPiece {
-                    let t = CGFloat(i) / CGFloat(capacityPerPiece)
+                for i in 0...capacityPerSegment {
+                    let t = CGFloat(i) / CGFloat(capacityPerSegment)
                     let point = calculateQuad(t: t, p1: prevPoint, p2: control, p3: point)
                     lookupTable.append(point)
                 }
@@ -63,13 +64,27 @@ extension Path {
             case .curve(to: let point, control1: let control1, control2: let control2):
                 guard let prevPoint = previousPoint else { break }
 
-                for i in 0...capacityPerPiece {
-                    let t = CGFloat(i) / CGFloat(capacityPerPiece)
+                for i in 0...capacityPerSegment {
+                    let t = CGFloat(i) / CGFloat(capacityPerSegment)
                     let point = calculateCube(t: t, p1: prevPoint, p2: control1, p3: control2, p4: point)
                     lookupTable.append(point)
                 }
                 previousPoint = point
-            default: break
+            case .closeSubpath:
+                guard let prevPoint = previousPoint else { break }
+                guard let firstPoint = lookupTable.first else { break }
+
+                guard prevPoint != firstPoint else {
+                    // prevent adding to lookup if subpath is at starting point already
+                    break
+                }
+
+                for i in 0...capacityPerSegment {
+                    let t = CGFloat(i) / CGFloat(capacityPerSegment)
+                    let point = calculateLinear(t: t, p1: prevPoint, p2: firstPoint)
+                    lookupTable.append(point)
+                }
+                previousPoint = firstPoint
             }
         }
 

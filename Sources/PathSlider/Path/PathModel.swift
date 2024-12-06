@@ -11,9 +11,9 @@ struct PathModel {
 
     let points: [CGPoint]
 
-    init(path: Path) {
+    init(path: Path, lookupCapacity: Int = 100) {
         self.path = path
-        points = path.generateLookup(capacity: 100)
+        points = path.generateLookup(capacity: lookupCapacity)
     }
 
     func point(for t: Float) -> CGPoint {
