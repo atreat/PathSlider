@@ -49,8 +49,9 @@ struct DayNightView: View {
             }
             .aspectRatio(4/3, contentMode: .fit)
         }
-        .animation(.default, value: isSun)
         .background(background)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .animation(.default, value: isSun)
     }
 
     @ViewBuilder
@@ -65,9 +66,9 @@ struct DayNightView: View {
     @ViewBuilder
     private var background: some View {
         if isSun {
-            DaySkyBackground()
+            Color("DaySky")
         } else {
-            NightSkyBackground()
+            Color("NightSky")
         }
     }
 }
