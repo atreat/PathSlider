@@ -4,6 +4,7 @@
 
 import SwiftUI
 
+@available(macOS 11, *)
 public struct PathTrack {
 
     public var path: Path

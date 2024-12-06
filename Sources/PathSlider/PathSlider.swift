@@ -3,6 +3,7 @@
 
 import SwiftUI
 
+@available(macOS 11, *)
 public struct PathSlider<Indicator, Track, V: Strideable>: View where Indicator : View, Track : View, V.Stride : BinaryFloatingPoint {
     private let model: PathTrack
 
@@ -40,6 +41,7 @@ public struct PathSlider<Indicator, Track, V: Strideable>: View where Indicator 
     }
 }
 
+@available(macOS 11, *)
 extension PathSlider {
     public var body: some View {
         ZStack {
@@ -110,6 +112,7 @@ extension PathSlider {
 }
 
 #if DEBUG
+@available(macOS 11, *)
 extension PathSlider {
     @ViewBuilder
     private func debugPathPoints() -> some View {
@@ -123,6 +126,7 @@ extension PathSlider {
 }
 #endif
 
+@available(macOS 11, *)
 struct PathSlider_Previews: PreviewProvider {
 
     @State static var point: CGPoint = .zero
@@ -130,7 +134,9 @@ struct PathSlider_Previews: PreviewProvider {
         let path = Path(ellipseIn: CGRect(origin: .zero, size: .init(width: 300, height: 160)))
         PathSlider(path: path, pathPoint: $point) {
             // indicator
-            PathPoint()
+            Circle()
+                .stroke(Color.black)
+                .background(Circle().fill(Color.gray))
                 .frame(width: 14, height: 14)
         } track: { path in
             path.stroke(Color.black.opacity(0.5), lineWidth: 2)

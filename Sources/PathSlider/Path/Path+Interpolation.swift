@@ -6,6 +6,7 @@
 
 import SwiftUI
 
+@available(macOS 11, *)
 extension Path {
 
     var count: Int {

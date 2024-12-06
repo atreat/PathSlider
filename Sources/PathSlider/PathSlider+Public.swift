@@ -5,6 +5,7 @@
 
 import SwiftUI
 
+@available(macOS 11, *)
 extension PathSlider {
 
     /// Creates a slider to select a value from a given range. Also provides binding to current point at which the indicator is placed.
