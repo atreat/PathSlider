@@ -66,7 +66,7 @@ struct EllipseView: View {
 </td>
 <td>
 
-![Example](Documentation/assets/Ellipse-Example.gif)
+<img src="Documentation/assets/Ellipse-Example.gif" alt="Example" width="300">
 
 </td>
 </table>
@@ -125,8 +125,8 @@ struct ShapeView: View {
 </td>
 <td>
 
-![Example](Documentation/assets/Shapes-Example.gif)
-![Example](Documentation/assets/Shapes-Example2.gif)
+<img src="Documentation/assets/Shapes-Example.gif" alt="Example" width="300">
+<img src="Documentation/assets/Shapes-Example2.gif" alt="Example" width="300">
 
 </td>
 </table>
