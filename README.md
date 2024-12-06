@@ -28,7 +28,7 @@ import PathSlider
 
 struct EllipseView: View {
 
-    @State var dragPoint: CGPoint = .zero
+    @State var pathPoint: CGPoint = .zero
     @State var value: Float = 0.5
 
     let path = Path(
@@ -40,9 +40,10 @@ struct EllipseView: View {
             PathSlider(
                 path: path, 
                 value: $value, 
-                in: 0...1, 
-                pathPoint: $dragPoint
+                in: 0...1,
+                pathPoint: $pathPoint
             ) {
+                // Draw indicator view
                 Circle()
                     .stroke(.blue, lineWidth: 2.0)
                     .fill(.blue.gradient)
@@ -52,6 +53,7 @@ struct EllipseView: View {
                         alignment: .center
                     )
             } track: { path in
+                // Draw path and/or accessory views
                 path
                     .stroke(
                         Color.primary.opacity(0.2), 
