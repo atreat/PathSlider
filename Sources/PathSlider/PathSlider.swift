@@ -5,9 +5,9 @@ import SwiftUI
 
 @available(macOS 11, *)
 public struct PathSlider<Indicator, Track, V: Strideable>: View where Indicator : View, Track : View, V.Stride : BinaryFloatingPoint {
-    private let model: PathTrack
+    private let model: PathModel
 
-    // Internal state to hold default values when bindings aren't provided
+    // Internal state to hold value when bindings aren't provided
     @State private var internalPathPoint: CGPoint = .zero
     
     // Bindings from public interface
@@ -28,7 +28,7 @@ public struct PathSlider<Indicator, Track, V: Strideable>: View where Indicator 
         indicator: @escaping () -> Indicator,
         @ViewBuilder track: @escaping (Path) -> Track
     ) {
-        self.model = PathTrack(path: path)
+        self.model = PathModel(path: path)
 
         // Create bindings that use internal state if external binding isn't provided
         self.pathPointBinding = pathPoint
@@ -80,8 +80,8 @@ extension PathSlider {
             }
         }
         .onChange(of: pathPointBinding?.wrappedValue) { newValue in
-            if let val = newValue {
-                update(with: val)
+            if let point = newValue {
+                update(with: point)
             }
         }
     }
@@ -103,7 +103,7 @@ extension PathSlider {
             withAnimation(.default) {
                 internalPathPoint = model.point(for: Float(bfp))
                 pathPointBinding?.wrappedValue = internalPathPoint
-                valueBinding?.wrappedValue = bfp as! V
+                valueBinding?.wrappedValue = newValue
             }
         } else {
             // TODO: what if value is not BinaryFloatingPoint?
