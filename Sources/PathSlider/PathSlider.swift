@@ -5,11 +5,11 @@ import SwiftUI
 
 @available(macOS 11, *)
 public struct PathSlider<Indicator, Track, V: Strideable>: View where Indicator : View, Track : View, V.Stride : BinaryFloatingPoint {
-    private let model: PathModel
 
-    // Internal state to hold value when bindings aren't provided
-    @State private var internalPathPoint: CGPoint = .zero
-    
+    // Internal State
+    private let path: Path
+    @StateObject private var viewModel = PathSliderViewModel()
+
     // Bindings from public interface
     private let pathPointBinding: Binding<CGPoint>?
     private let valueBinding: Binding<V>?
@@ -28,7 +28,7 @@ public struct PathSlider<Indicator, Track, V: Strideable>: View where Indicator 
         indicator: @escaping () -> Indicator,
         @ViewBuilder track: @escaping (Path) -> Track
     ) {
-        self.model = PathModel(path: path)
+        self.path = path
 
         // Create bindings that use internal state if external binding isn't provided
         self.pathPointBinding = pathPoint
@@ -38,6 +38,7 @@ public struct PathSlider<Indicator, Track, V: Strideable>: View where Indicator 
         // View providers
         self.indicator = indicator
         self.track = track
+
     }
 }
 
@@ -45,12 +46,12 @@ public struct PathSlider<Indicator, Track, V: Strideable>: View where Indicator 
 extension PathSlider {
     public var body: some View {
         ZStack {
-            track(model.path)
+            track(viewModel.path)
 
             indicator()
                 .position(
-                    x: internalPathPoint.x,
-                    y: internalPathPoint.y
+                    x: viewModel.internalPathPoint.x,
+                    y: viewModel.internalPathPoint.y
                 )
 
 //            debugPathPoints()
@@ -66,6 +67,8 @@ extension PathSlider {
                 }
         )
         .onAppear {
+            viewModel.update(path: path)
+            
             // `value` binding initial value will take precendence over pathPoint
             if let value = valueBinding?.wrappedValue {
                 update(with: value)
@@ -84,14 +87,23 @@ extension PathSlider {
                 update(with: point)
             }
         }
+        .onChange(of: path) { newPath in
+            viewModel.update(path: newPath)
+
+            if let value = valueBinding?.wrappedValue {
+                update(with: value)
+            } else if let point = pathPointBinding?.wrappedValue {
+                update(with: point)
+            }
+        }
     }
 
     private func update(with point: CGPoint) {
-        if let closest = model.closest(from: point) {
+        if let closest = viewModel.closest(from: point) {
             withAnimation(.default) {
-                internalPathPoint = closest
+                viewModel.internalPathPoint = closest
                 pathPointBinding?.wrappedValue = closest
-                valueBinding?.wrappedValue = range?.item(for: model.percentage(for: closest)) ?? 0 as! V
+                valueBinding?.wrappedValue = range?.item(for: viewModel.percentage(for: closest)) ?? 0 as! V
             }
         } else {
             // TODO: what if no closest point?
@@ -101,8 +113,8 @@ extension PathSlider {
     private func update(with newValue: V) {
         if let bfp = newValue as? any BinaryFloatingPoint {
             withAnimation(.default) {
-                internalPathPoint = model.point(for: Float(bfp))
-                pathPointBinding?.wrappedValue = internalPathPoint
+                viewModel.internalPathPoint = viewModel.point(for: Float(bfp))
+                pathPointBinding?.wrappedValue = viewModel.internalPathPoint
                 valueBinding?.wrappedValue = newValue
             }
         } else {
@@ -116,7 +128,7 @@ extension PathSlider {
 extension PathSlider {
     @ViewBuilder
     private func debugPathPoints() -> some View {
-        ForEach(model.points, id: \.self) { point in
+        ForEach(viewModel.points, id: \.self) { point in
             Circle()
                 .stroke(Color.red, lineWidth: 1)
                 .frame(width: 4, height: 4, alignment: .center)

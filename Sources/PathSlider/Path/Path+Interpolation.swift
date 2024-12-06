@@ -34,6 +34,7 @@ extension Path {
     func generateLookup(capacity: Int = 100) -> [CGPoint] {
         let count = strokeSegmentCount
         guard count > 0 else { return [] }
+
         let capacityPerSegment = capacity / count
 
         var lookupTable = [CGPoint]()
