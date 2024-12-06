@@ -12,13 +12,13 @@ struct ContentView: View {
         NavigationStack {
             List {
                 Section("Simple") {
-                    NavigationLink("Ellipse") { EllipseView() }
-                    NavigationLink("Triangle") { TriangleView() }
-                    NavigationLink("Shape Modifier") { ShapeView() }
+                    NavigationLink("Ellipse") { EllipseView().frame(maxWidth: 350, maxHeight: 600) }
+                    NavigationLink("Triangle") { TriangleView().frame(maxWidth: 350, maxHeight: 600) }
+                    NavigationLink("Shape Modifier") { ShapeView().frame(maxWidth: 350, maxHeight: 600) }
                 }
 
                 Section("Advanced") {
-                    NavigationLink("Day/Night") { DayNightView() }
+                    NavigationLink("Day/Night") { DayNightView().frame(maxWidth: 350, maxHeight: 600) }
                 }
             }
         }
