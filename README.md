@@ -12,10 +12,13 @@ A SwiftUI slider component that follows any custom Path, enabling unique and eng
 
 ## Usage
 
+[![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fatreat%2FPathSlider%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/atreat/PathSlider)
+[![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fatreat%2FPathSlider%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/atreat/PathSlider)
+
 ### Ellipse
 
-This example uses the `Path(ellipseIn: CGRect)` initializer to quickly create a path. The View 
-holds the `@State` for both the Slider's `value` and also the `pathPoint`, which is the location of the 
+This example uses the `Path(ellipseIn: CGRect)` initializer to quickly create a path. The View
+holds the `@State` for both the Slider's `value` and also the `pathPoint`, which is the location of the
 "thumb" indicator.
 
 <table>
@@ -38,8 +41,8 @@ struct EllipseView: View {
     var body: some View {
         VStack(alignment: .center) {
             PathSlider(
-                path: path, 
-                value: $value, 
+                path: path,
+                value: $value,
                 in: 0...1,
                 pathPoint: $pathPoint
             ) {
@@ -48,15 +51,15 @@ struct EllipseView: View {
                     .stroke(.blue, lineWidth: 2.0)
                     .fill(.blue.gradient)
                     .frame(
-                        width: 20, 
-                        height: 20, 
+                        width: 20,
+                        height: 20,
                         alignment: .center
                     )
             } track: { path in
                 // Draw path and/or accessory views
                 path
                     .stroke(
-                        Color.primary.opacity(0.2), 
+                        Color.primary.opacity(0.2),
                         lineWidth: 2
                     )
             }
@@ -138,7 +141,3 @@ struct ShapeView: View {
 
 Included in the `Examples` directory is the `Examples.xcodeproj`. Take a look at this project to get a more interactive look at
 the usage examples above. If you have any interesting examples you'd like to share, pull requests are welcome!
-
-
-
-
